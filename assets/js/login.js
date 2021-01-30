@@ -1,14 +1,14 @@
-$(function() {
+$(function () {
     // 点击“去注册账号”的链接
-    $('#link_reg').on('click', function() {
-      $('.login-box').hide()
-      $('.reg-box').show()
+    $('#link_reg').on('click', function () {
+        $('.login-box').hide()
+        $('.reg-box').show()
     })
-  
+
     // 点击“去登录”的链接
-    $('#link_login').on('click', function() {
-      $('.login-box').show()
-      $('.reg-box').hide()
+    $('#link_login').on('click', function () {
+        $('.login-box').show()
+        $('.reg-box').hide()
     })
 
     var form = layui.form
@@ -29,29 +29,35 @@ $(function() {
     $('#form_reg').on('submit', function (e) {
         // 阻止默认的提交行为
         e.preventDefault()
-        // 发起Ajax的POST请求
-        $.post('/api/reguser', {username: $('#form_reg [name=username]').val(), password: $('#form_reg [name=password]').val()}, function (res) {
-            if (res.status !== 0) {
-                return layer.msg(res.message);        
+        $.ajax({
+            method: 'post',
+            url: '/api/reguser',
+            data: {
+                username: $('#form_reg [name=username]').val(),
+                password: $('#form_reg [name=password]').val(),
+            },
+            success(res) {
+                if (res.status !== 0) {
+                    return layer.msg(res.message);
+                }
+                layer.msg('注册成功，请登录！');
+                $('#link_login').click()
             }
-            layer.msg(res.message);
-            $('#link_login').click()          
         })
     })
 
     // 发起登录请求
-    $('#form_login').submit(function(e) {
+    $('#form_login').submit(function (e) {
         e.preventDefault()
         $.ajax({
+            method: 'POST',
             url: '/api/login',
-            method: 'post',
-            // 快读获取表单中的数据
             data: $(this).serialize(),
             success(res) {
                 if (res.status !== 0) {
                     return layer.msg('登录失败！')
                 }
-                layer.msg('登陆成功！')
+                layer.msg(res.message)
                 // 将登陆成功得到的 token 字符串，保存到localStorage中
                 localStorage.setItem('token', res.token)
                 // 跳转到后台主页
@@ -59,4 +65,4 @@ $(function() {
             }
         })
     })
-  })
+})
